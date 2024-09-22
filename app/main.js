@@ -22,6 +22,16 @@ function matchPattern(inputLine, pattern) {
     }
 
     return false;
+  } else if (pattern[0] === '[' && pattern[pattern.length - 1] === ']') {
+    let patternToMatch = pattern.slice(1, -1);
+
+    for (let i = 0; i < inputLine.length; i++) {
+      if (patternToMatch.includes(inputLine[i])) {
+        return true;
+      }
+    }
+
+    return false;
   } else {
     throw new Error(`Unhandled pattern ${pattern}`);
   }

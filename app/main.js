@@ -1,6 +1,16 @@
 function matchPattern(inputLine, pattern) {
   if (pattern.length === 1) {
     return inputLine.includes(pattern);
+  } else if (pattern === '\\d') {
+    let digits = '0123456789';
+
+    for (let i = 0; i < inputLine.length; i++) {
+      if (digits.includes(inputLine[i])) {
+        return true;
+      }
+    }
+
+    return false;
   } else {
     throw new Error(`Unhandled pattern ${pattern}`);
   }

@@ -11,6 +11,17 @@ function matchPattern(inputLine, pattern) {
     }
 
     return false;
+  } else if (pattern === '\\w') {
+    let alphaNumbers =
+      '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_';
+
+    for (let i = 0; i < inputLine.length; i++) {
+      if (alphaNumbers.includes(inputLine[i])) {
+        return true;
+      }
+    }
+
+    return false;
   } else {
     throw new Error(`Unhandled pattern ${pattern}`);
   }

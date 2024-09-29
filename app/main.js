@@ -1,53 +1,100 @@
-function matchPattern(inputLine, pattern) {
-  if (pattern.length === 1) {
-    return inputLine.includes(pattern);
-  } else if (pattern === '\\d') {
-    let digits = '0123456789';
+function getPatterns(pattern) {
+  let patternArr = [];
+  let i = 0;
+  let patternToMatch = '';
 
-    for (let i = 0; i < inputLine.length; i++) {
-      if (digits.includes(inputLine[i])) {
-        return true;
+  while (i < pattern.length) {
+    if (pattern[i] === '\\') {
+      patternToMatch = pattern.slice(i, i + 2);
+      if (patternToMatch[1] !== 'd' && patternToMatch[1] !== 'w') {
+        throw new Error(`Unhandled pattern ${pattern}`);
       }
-    }
+      patternArr.push(patternToMatch);
+      i += 2;
+    } else if (pattern[i] === '[') {
+      let j = i;
 
-    return false;
-  } else if (pattern === '\\w') {
-    let alphaNumbers =
-      '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_';
+      while (j < pattern.length) {
+        if (pattern[j] === ']') {
+          patternToMatch = pattern.slice(i, j + 1);
+          patternArr.push(patternToMatch);
+          j++;
+          break;
+        }
 
-    for (let i = 0; i < inputLine.length; i++) {
-      if (alphaNumbers.includes(inputLine[i])) {
-        return true;
+        if (j === pattern.length - 1) {
+          throw new Error(`Unhandled pattern ${pattern}`);
+        }
+
+        j++;
       }
+
+      i = j;
+    } else {
+      patternToMatch = pattern[i];
+      patternArr.push(patternToMatch);
+      i++;
     }
-
-    return false;
-  } else if (
-    pattern.slice(0, 2) === '[^' &&
-    pattern[pattern.length - 1] === ']'
-  ) {
-    let patternToMatch = pattern.slice(2, -1);
-
-    for (let i = 0; i < inputLine.length; i++) {
-      if (patternToMatch.includes(inputLine[i])) {
-        return false;
-      }
-    }
-
-    return true;
-  } else if (pattern[0] === '[' && pattern[pattern.length - 1] === ']') {
-    let patternToMatch = pattern.slice(1, -1);
-
-    for (let i = 0; i < inputLine.length; i++) {
-      if (patternToMatch.includes(inputLine[i])) {
-        return true;
-      }
-    }
-
-    return false;
-  } else {
-    throw new Error(`Unhandled pattern ${pattern}`);
   }
+
+  return patternArr;
+}
+
+function matchPattern(inputLine, pattern) {
+  const digits = '0123456789';
+  const alphaNumbers =
+    '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_';
+
+  const patternArr = getPatterns(pattern);
+
+  let i = 0;
+  while (i < inputLine.length) {
+    let j = 0;
+
+    while (j < patternArr.length) {
+      const cursor = patternArr[j];
+      const index = i + j;
+
+      if (index >= inputLine.length) {
+        break;
+      }
+      const inputCharacter = inputLine[index];
+
+      if (cursor === '\\d' && digits.includes(inputCharacter)) {
+        j++;
+        continue;
+      } else if (cursor === '\\w' && alphaNumbers.includes(inputCharacter)) {
+        j++;
+        continue;
+      } else if (cursor.startsWith('[^')) {
+        if (!cursor.slice(2, cursor.length - 1).includes(inputCharacter)) {
+          j++;
+          continue;
+        } else {
+          return false;
+        }
+      } else if (
+        cursor.startsWith('[') &&
+        cursor.slice(1, cursor.length - 1).includes(inputCharacter)
+      ) {
+        j++;
+        continue;
+      } else if (cursor.length === 1 && cursor === inputCharacter) {
+        j++;
+        continue;
+      } else {
+        break;
+      }
+    }
+
+    if (j === patternArr.length) {
+      return true;
+    }
+
+    i++;
+  }
+
+  return false;
 }
 
 function main() {

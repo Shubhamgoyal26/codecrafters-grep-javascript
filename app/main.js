@@ -67,11 +67,14 @@ function matchPattern(inputLine, pattern) {
         j++;
         continue;
       } else if (cursor.startsWith('[^')) {
+        // cannot put this condition with "[^" condition as any pattern which starts with "[^" but also includes the inputCharacter
+        // in pattern string will then evaluate to false thus going to the next condition and become true since the pattern does
+        // start with "[" and also includes the inputCharacter in pattern string
         if (!cursor.slice(2, cursor.length - 1).includes(inputCharacter)) {
           j++;
           continue;
         } else {
-          return false;
+          break;
         }
       } else if (
         cursor.startsWith('[') &&

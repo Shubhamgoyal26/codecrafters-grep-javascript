@@ -35,9 +35,14 @@ function parsePattern(pattern) {
 
       i = j;
     } else {
-      patternToMatch = pattern[i];
+      if (pattern[i + 1] === '+') {
+        patternToMatch = pattern.slice(i, i + 2);
+        i += 2;
+      } else {
+        patternToMatch = pattern[i];
+        i++;
+      }
       patternArr.push(patternToMatch);
-      i++;
     }
   }
 
@@ -70,6 +75,15 @@ function matchPatternHere(inputLine, patternArr) {
       cursor.startsWith('[') &&
       cursor.slice(1, cursor.length - 1).includes(inputCharacter)
     ) {
+      continue;
+    } else if (cursor.length === 2 && cursor[1] === '+') {
+      if (inputCharacter !== cursor[0]) {
+        i--;
+        break;
+      }
+      while (inputLine[j] === cursor[0]) {
+        j++;
+      }
       continue;
     } else if (cursor.length === 1 && cursor === inputCharacter) {
       continue;

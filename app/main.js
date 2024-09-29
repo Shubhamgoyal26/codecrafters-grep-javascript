@@ -79,6 +79,14 @@ function matchPatternHere(inputLine, patternArr) {
     }
   }
 
+  if (
+    patternArr.slice(-1)[0] === '$' &&
+    i === patternArr.length - 1 &&
+    j === inputLine.length + 1
+  ) {
+    return true;
+  }
+
   if (i === patternArr.length) {
     return true;
   } else {

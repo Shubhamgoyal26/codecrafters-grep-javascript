@@ -35,7 +35,7 @@ function parsePattern(pattern) {
 
       i = j;
     } else {
-      if (pattern[i + 1] === '+') {
+      if (pattern[i + 1] === '+' || pattern[i + 1] === '?') {
         patternToMatch = pattern.slice(i, i + 2);
         i += 2;
       } else {
@@ -81,6 +81,12 @@ function matchPatternHere(inputLine, patternArr) {
         i--;
         break;
       }
+      while (inputLine[j] === cursor[0]) {
+        j++;
+      }
+      continue;
+    } else if (cursor.length === 2 && cursor[1] === '?') {
+      j -= 1;
       while (inputLine[j] === cursor[0]) {
         j++;
       }

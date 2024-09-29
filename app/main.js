@@ -91,7 +91,10 @@ function matchPatternHere(inputLine, patternArr) {
         j++;
       }
       continue;
-    } else if (cursor.length === 1 && cursor === inputCharacter) {
+    } else if (
+      (cursor.length === 1 && cursor === inputCharacter) ||
+      cursor === '.'
+    ) {
       continue;
     } else {
       i--;

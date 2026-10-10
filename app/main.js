@@ -34,16 +34,33 @@ function parsePattern(pattern) {
       }
 
       i = j;
-    } else {
-      if (pattern[i + 1] === '+' || pattern[i + 1] === '?') {
-        patternToMatch = pattern.slice(i, i + 2);
-        i += 2;
-      } else {
-        patternToMatch = pattern[i];
-        i++;
+    } else if (pattern[i] === '(') {
+      let j = i;
+
+      while (j < pattern.length) {
+        if (pattern[j] === ')') {
+          patternToMatch = pattern.slice(i, j + 1);
+          patternArr.push(patternToMatch);
+          j++;
+          break;
+        }
+
+        if (j === pattern.length - 1) {
+          throw new Error(`Unhandled pattern ${pattern}`);
+        }
+
+        j++;
       }
-      patternArr.push(patternToMatch);
+
+      i = j;
+    } else if (pattern[i + 1] === '+' || pattern[i + 1] === '?') {
+      patternToMatch = pattern.slice(i, i + 2);
+      i += 2;
+    } else {
+      patternToMatch = pattern[i];
+      i++;
     }
+    patternArr.push(patternToMatch);
   }
 
   return patternArr;
@@ -76,6 +93,23 @@ function matchPatternHere(inputLine, patternArr) {
       cursor.slice(1, cursor.length - 1).includes(inputCharacter)
     ) {
       continue;
+    } else if (cursor.startsWith('(')) {
+      const patternSubStrings = cursor.slice(1, cursor.length - 1).split('|');
+
+      let res = false;
+      for (let k = 0; k < patternSubStrings.length; k++) {
+        const subPatternArr = parsePattern(patternSubStrings[k]);
+        res = res || matchPatternHere(inputLine.slice(j - 1), subPatternArr);
+      }
+
+      if (res === true) {
+        i += 1;
+        j += subPatternArr.length;
+        continue;
+      } else {
+        i--;
+        break;
+      }
     } else if (cursor.length === 2 && cursor[1] === '+') {
       if (inputCharacter !== cursor[0]) {
         i--;
@@ -117,9 +151,7 @@ function matchPatternHere(inputLine, patternArr) {
   }
 }
 
-function matchPattern(inputLine, pattern) {
-  const patternArr = parsePattern(pattern);
-
+function matchPattern(inputLine, patternArr) {
   if (patternArr[0] === '^') {
     return matchPatternHere(inputLine, patternArr.slice(1));
   }
@@ -149,7 +181,9 @@ function main() {
   console.log('Logs from your program will appear here');
 
   // Uncomment this block to pass the first stage
-  if (matchPattern(inputLine, pattern)) {
+  const patternArr = parsePattern(pattern);
+
+  if (matchPattern(inputLine, patternArr)) {
     process.exit(0);
   } else {
     process.exit(1);
